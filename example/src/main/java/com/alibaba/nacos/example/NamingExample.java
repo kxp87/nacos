@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author nkorange
  */
+// 寻找入口的好地方
 public class NamingExample {
     
     public static void main(String[] args) throws NacosException, InterruptedException {
