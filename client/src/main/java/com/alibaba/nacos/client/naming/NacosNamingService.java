@@ -288,6 +288,7 @@ public class NacosNamingService implements NamingService {
     }
 
     @Override
+    // 服务发现01
     public List<Instance> getAllInstances(String serviceName, List<String> clusters, boolean subscribe)
             throws NacosException {
         return getAllInstances(serviceName, Constants.DEFAULT_GROUP, clusters, subscribe);
@@ -299,6 +300,7 @@ public class NacosNamingService implements NamingService {
 
         ServiceInfo serviceInfo;
         if (subscribe) {
+            // 服务发现02
             serviceInfo = hostReactor.getServiceInfo(NamingUtils.getGroupedName(serviceName, groupName),
                     StringUtils.join(clusters, ","));
         } else {

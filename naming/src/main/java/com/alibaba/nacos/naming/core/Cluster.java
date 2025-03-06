@@ -122,6 +122,7 @@ public class Cluster extends com.alibaba.nacos.api.naming.pojo.Cluster implement
      */
     public List<Instance> allIPs() {
         List<Instance> allInstances = new ArrayList<>();
+        // 服务发现04_10
         allInstances.addAll(persistentInstances);
         allInstances.addAll(ephemeralInstances);
         return allInstances;

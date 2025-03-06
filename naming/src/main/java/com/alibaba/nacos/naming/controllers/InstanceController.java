@@ -373,6 +373,7 @@ public class InstanceController {
      */
     @GetMapping("/list")
     @Secured(parser = NamingResourceParser.class, action = ActionTypes.READ)
+    // 服务发现04_3
     public ObjectNode list(HttpServletRequest request) throws Exception {
 
         String namespaceId = WebUtils.optional(request, CommonParams.NAMESPACE_ID, Constants.DEFAULT_NAMESPACE_ID);
@@ -391,7 +392,7 @@ public class InstanceController {
         String tenant = WebUtils.optional(request, "tid", StringUtils.EMPTY);
 
         boolean healthyOnly = Boolean.parseBoolean(WebUtils.optional(request, "healthyOnly", "false"));
-
+        // 服务发现04_4
         return doSrvIpxt(namespaceId, serviceName, agent, clusters, clientIP, udpPort, env, isCheck, app, tenant,
                 healthyOnly);
     }
@@ -662,6 +663,7 @@ public class InstanceController {
 
         ClientInfo clientInfo = new ClientInfo(agent);
         ObjectNode result = JacksonUtils.createEmptyJsonNode();
+        // 服务发现04_5
         Service service = serviceManager.getService(namespaceId, serviceName);
         long cacheMillis = switchDomain.getDefaultCacheMillis();
 
@@ -694,7 +696,7 @@ public class InstanceController {
         checkIfDisabled(service);
 
         List<Instance> srvedIPs;
-
+        // 服务发现04_6
         srvedIPs = service.srvIPs(Arrays.asList(StringUtils.split(clusters, ",")));
 
         // filter ips using selector:

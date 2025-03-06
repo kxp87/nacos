@@ -403,7 +403,8 @@ public class NamingProxy implements Closeable {
         params.put("udpPort", String.valueOf(udpPort));
         params.put("clientIP", NetUtils.localIP());
         params.put("healthyOnly", String.valueOf(healthyOnly));
-
+        // 服务发现11
+        // 服务发现04_2
         return reqApi(UtilAndComs.nacosUrlBase + "/instance/list", params, HttpMethod.GET);
     }
 
