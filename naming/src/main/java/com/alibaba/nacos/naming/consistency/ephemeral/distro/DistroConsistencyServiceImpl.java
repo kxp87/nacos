@@ -98,7 +98,9 @@ public class DistroConsistencyServiceImpl implements EphemeralConsistencyService
     }
 
     @PostConstruct
+    // 服务注册03_10_01_4_1
     public void init() {
+        // 服务注册03_10_01_4_2
         GlobalExecutor.submitDistroNotifyTask(notifier);
     }
 
@@ -387,11 +389,13 @@ public class DistroConsistencyServiceImpl implements EphemeralConsistencyService
         }
 
         @Override
+        // 服务注册03_10_01_4_3
         public void run() {
             Loggers.DISTRO.info("distro notifier started");
 
             for (; ; ) {
                 try {
+                    // 服务注册03_10_01_4
                     Pair<String, DataOperation> pair = tasks.take();
                     handle(pair);
                 } catch (Throwable e) {
@@ -419,6 +423,7 @@ public class DistroConsistencyServiceImpl implements EphemeralConsistencyService
 
                     try {
                         if (action == DataOperation.CHANGE) {
+                            // 服务注册03_10_01_5 listener就是Service实例
                             listener.onChange(datumKey, dataStore.get(datumKey).value);
                             continue;
                         }

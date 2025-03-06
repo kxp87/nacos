@@ -146,6 +146,7 @@ public class InstanceController {
     @CanDistro
     @DeleteMapping
     @Secured(parser = NamingResourceParser.class, action = ActionTypes.WRITE)
+    // 服务注册03_04_01_10
     public String deregister(HttpServletRequest request) throws Exception {
         Instance instance = getIpAddress(request);
         String namespaceId = WebUtils.optional(request, CommonParams.NAMESPACE_ID, Constants.DEFAULT_NAMESPACE_ID);
@@ -157,7 +158,7 @@ public class InstanceController {
             Loggers.SRV_LOG.warn("remove instance from non-exist service: {}", serviceName);
             return "ok";
         }
-
+        // 服务注册03_04_01_11
         serviceManager.removeInstance(namespaceId, serviceName, instance.isEphemeral(), instance);
         return "ok";
     }
@@ -455,6 +456,7 @@ public class InstanceController {
     @CanDistro
     @PutMapping("/beat")
     @Secured(parser = NamingResourceParser.class, action = ActionTypes.WRITE)
+    // 服务注册02_4
     public ObjectNode beat(HttpServletRequest request) throws Exception {
 
         ObjectNode result = JacksonUtils.createEmptyJsonNode();
@@ -503,7 +505,7 @@ public class InstanceController {
             instance.setServiceName(serviceName);
             instance.setInstanceId(instance.getInstanceId());
             instance.setEphemeral(clientBeat.isEphemeral());
-
+            // 服务注册02_5
             serviceManager.registerInstance(namespaceId, serviceName, instance);
         }
 
@@ -519,6 +521,7 @@ public class InstanceController {
             clientBeat.setPort(port);
             clientBeat.setCluster(clusterName);
         }
+        // 服务注册02_6
         service.processClientBeat(clientBeat);
 
         result.put(CommonParams.CODE, NamingResponseCode.OK);

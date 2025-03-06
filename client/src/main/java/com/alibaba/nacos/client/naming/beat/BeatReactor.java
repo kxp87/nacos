@@ -45,19 +45,19 @@ import static com.alibaba.nacos.client.utils.LogUtils.NAMING_LOGGER;
  * @author harold
  */
 public class BeatReactor implements Closeable {
-    
+
     private final ScheduledExecutorService executorService;
-    
+
     private final NamingProxy serverProxy;
-    
+
     private boolean lightBeatEnabled = false;
-    
+
     public final Map<String, BeatInfo> dom2Beat = new ConcurrentHashMap<String, BeatInfo>();
-    
+
     public BeatReactor(NamingProxy serverProxy) {
         this(serverProxy, UtilAndComs.DEFAULT_CLIENT_BEAT_THREAD_COUNT);
     }
-    
+
     public BeatReactor(NamingProxy serverProxy, int threadCount) {
         this.serverProxy = serverProxy;
         this.executorService = new ScheduledThreadPoolExecutor(threadCount, new ThreadFactory() {
@@ -70,7 +70,7 @@ public class BeatReactor implements Closeable {
             }
         });
     }
-    
+
     /**
      * Add beat information.
      *
@@ -86,10 +86,11 @@ public class BeatReactor implements Closeable {
             existBeat.setStopped(true);
         }
         dom2Beat.put(key, beatInfo);
+        // 服务注册02_1
         executorService.schedule(new BeatTask(beatInfo), beatInfo.getPeriod(), TimeUnit.MILLISECONDS);
         MetricsMonitor.getDom2BeatSizeMonitor().set(dom2Beat.size());
     }
-    
+
     /**
      * Remove beat information.
      *
@@ -106,7 +107,7 @@ public class BeatReactor implements Closeable {
         beatInfo.setStopped(true);
         MetricsMonitor.getDom2BeatSizeMonitor().set(dom2Beat.size());
     }
-    
+
     /**
      * Build new beat information.
      *
@@ -116,7 +117,7 @@ public class BeatReactor implements Closeable {
     public BeatInfo buildBeatInfo(Instance instance) {
         return buildBeatInfo(instance.getServiceName(), instance);
     }
-    
+
     /**
      * Build new beat information.
      *
@@ -136,11 +137,11 @@ public class BeatReactor implements Closeable {
         beatInfo.setPeriod(instance.getInstanceHeartBeatInterval());
         return beatInfo;
     }
-    
+
     public String buildKey(String serviceName, String ip, int port) {
         return serviceName + Constants.NAMING_INSTANCE_ID_SPLITTER + ip + Constants.NAMING_INSTANCE_ID_SPLITTER + port;
     }
-    
+
     @Override
     public void shutdown() throws NacosException {
         String className = this.getClass().getName();
@@ -148,22 +149,24 @@ public class BeatReactor implements Closeable {
         ThreadUtils.shutdownThreadPool(executorService, NAMING_LOGGER);
         NAMING_LOGGER.info("{} do shutdown stop", className);
     }
-    
+
     class BeatTask implements Runnable {
-        
+
         BeatInfo beatInfo;
-        
+
         public BeatTask(BeatInfo beatInfo) {
             this.beatInfo = beatInfo;
         }
-        
+
         @Override
+        // 服务注册02_2
         public void run() {
             if (beatInfo.isStopped()) {
                 return;
             }
             long nextTime = beatInfo.getPeriod();
             try {
+                // 服务注册02_3
                 JsonNode result = serverProxy.sendBeat(beatInfo, BeatReactor.this.lightBeatEnabled);
                 long interval = result.get("clientBeatInterval").asLong();
                 boolean lightBeatEnabled = false;
@@ -197,7 +200,7 @@ public class BeatReactor implements Closeable {
             } catch (NacosException ex) {
                 NAMING_LOGGER.error("[CLIENT-BEAT] failed to send beat: {}, code: {}, msg: {}",
                         JacksonUtils.toJson(beatInfo), ex.getErrCode(), ex.getErrMsg());
-                
+
             }
             executorService.schedule(new BeatTask(beatInfo), nextTime, TimeUnit.MILLISECONDS);
         }

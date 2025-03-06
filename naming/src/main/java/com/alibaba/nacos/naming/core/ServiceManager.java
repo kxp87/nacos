@@ -480,7 +480,7 @@ public class ServiceManager implements RecordListener<Service> {
                 service.getClusterMap().put(cluster.getName(), cluster);
             }
             service.validate();
-
+            // 服务注册03_04_01
             putServiceAndInit(service);
             if (!local) {
                 addOrReplaceService(service);
@@ -681,12 +681,12 @@ public class ServiceManager implements RecordListener<Service> {
             Instance... ips) throws NacosException {
 
         String key = KeyBuilder.buildInstanceListKey(namespaceId, serviceName, ephemeral);
-
+        // 服务注册03_04_01_12
         List<Instance> instanceList = substractIpAddresses(service, ephemeral, ips);
 
         Instances instances = new Instances();
         instances.setInstanceList(instanceList);
-
+        // 服务注册03_04_01_13
         consistencyService.put(key, instances);
     }
 
@@ -874,6 +874,7 @@ public class ServiceManager implements RecordListener<Service> {
         if (!serviceMap.containsKey(service.getNamespaceId())) {
             synchronized (putServiceLock) {
                 if (!serviceMap.containsKey(service.getNamespaceId())) {
+                    // 服务注册03_04_01_01_01
                     serviceMap.put(service.getNamespaceId(), new ConcurrentSkipListMap<>());
                 }
             }
@@ -882,7 +883,9 @@ public class ServiceManager implements RecordListener<Service> {
     }
 
     private void putServiceAndInit(Service service) throws NacosException {
+        // 服务注册03_04_01_01
         putService(service);
+        // 服务注册03_04_01_02
         service.init();
         consistencyService
                 .listen(KeyBuilder.buildInstanceListKey(service.getNamespaceId(), service.getName(), true), service);

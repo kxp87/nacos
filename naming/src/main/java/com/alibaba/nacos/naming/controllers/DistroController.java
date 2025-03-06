@@ -51,16 +51,16 @@ import java.util.Map;
 @RestController
 @RequestMapping(UtilsAndCommons.NACOS_NAMING_CONTEXT + "/distro")
 public class DistroController {
-    
+
     @Autowired
     private DistroProtocol distroProtocol;
-    
+
     @Autowired
     private ServiceManager serviceManager;
-    
+
     @Autowired
     private SwitchDomain switchDomain;
-    
+
     /**
      * Synchronize datum.
      *
@@ -69,13 +69,14 @@ public class DistroController {
      * @throws Exception if failed
      */
     @PutMapping("/datum")
+    // 服务注册03_10_02_13
     public ResponseEntity onSyncDatum(@RequestBody Map<String, Datum<Instances>> dataMap) throws Exception {
-        
+
         if (dataMap.isEmpty()) {
             Loggers.DISTRO.error("[onSync] receive empty entity!");
             throw new NacosException(NacosException.INVALID_PARAM, "receive empty entity!");
         }
-        
+
         for (Map.Entry<String, Datum<Instances>> entry : dataMap.entrySet()) {
             if (KeyBuilder.matchEphemeralInstanceListKey(entry.getKey())) {
                 String namespaceId = KeyBuilder.getNamespace(entry.getKey());
@@ -90,7 +91,7 @@ public class DistroController {
         }
         return ResponseEntity.ok("ok");
     }
-    
+
     /**
      * Checksum.
      *
@@ -104,7 +105,7 @@ public class DistroController {
         distroProtocol.onVerify(distroHttpData);
         return ResponseEntity.ok("ok");
     }
-    
+
     /**
      * Get datum.
      *
@@ -114,7 +115,7 @@ public class DistroController {
      */
     @GetMapping("/datum")
     public ResponseEntity get(@RequestBody String body) throws Exception {
-        
+
         JsonNode bodyNode = JacksonUtils.toObj(body);
         String keys = bodyNode.get("keys").asText();
         String keySplitter = ",";
@@ -125,7 +126,7 @@ public class DistroController {
         DistroData distroData = distroProtocol.onQuery(distroKey);
         return ResponseEntity.ok(distroData.getContent());
     }
-    
+
     /**
      * Get all datums.
      *
@@ -136,7 +137,7 @@ public class DistroController {
         DistroData distroData = distroProtocol.onSnapshot(KeyBuilder.INSTANCE_LIST_KEY_PREFIX);
         return ResponseEntity.ok(distroData.getContent());
     }
-    
+
     private DistroKey createDistroKey(String resourceKey) {
         return new DistroKey(resourceKey, KeyBuilder.INSTANCE_LIST_KEY_PREFIX);
     }

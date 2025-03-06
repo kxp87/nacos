@@ -41,25 +41,25 @@ import java.util.List;
  */
 @Component("distroMapper")
 public class DistroMapper extends MemberChangeListener {
-    
+
     /**
      * List of service nodes, you must ensure that the order of healthyList is the same for all nodes.
      */
     private volatile List<String> healthyList = new ArrayList<>();
-    
+
     private final SwitchDomain switchDomain;
-    
+
     private final ServerMemberManager memberManager;
-    
+
     public DistroMapper(ServerMemberManager memberManager, SwitchDomain switchDomain) {
         this.memberManager = memberManager;
         this.switchDomain = switchDomain;
     }
-    
+
     public List<String> getHealthyList() {
         return healthyList;
     }
-    
+
     /**
      * init server list.
      */
@@ -68,12 +68,12 @@ public class DistroMapper extends MemberChangeListener {
         NotifyCenter.registerSubscriber(this);
         this.healthyList = MemberUtil.simpleMembers(memberManager.allMembers());
     }
-    
+
     public boolean responsible(Cluster cluster, Instance instance) {
         return switchDomain.isHealthCheckEnabled(cluster.getServiceName()) && !cluster.getHealthCheckTask()
                 .isCancelled() && responsible(cluster.getServiceName()) && cluster.contains(instance);
     }
-    
+
     /**
      * Judge whether current server is responsible for input service.
      *
@@ -82,26 +82,26 @@ public class DistroMapper extends MemberChangeListener {
      */
     public boolean responsible(String serviceName) {
         final List<String> servers = healthyList;
-        
+
         if (!switchDomain.isDistroEnabled() || EnvUtil.getStandaloneMode()) {
             return true;
         }
-        
+
         if (CollectionUtils.isEmpty(servers)) {
             // means distro config is not ready yet
             return false;
         }
-        
+
         int index = servers.indexOf(EnvUtil.getLocalAddress());
         int lastIndex = servers.lastIndexOf(EnvUtil.getLocalAddress());
         if (lastIndex < 0 || index < 0) {
             return true;
         }
-        
+        // 服务注册03_04_01_05
         int target = distroHash(serviceName) % servers.size();
         return target >= index && target <= lastIndex;
     }
-    
+
     /**
      * Calculate which other server response input service.
      *
@@ -110,11 +110,11 @@ public class DistroMapper extends MemberChangeListener {
      */
     public String mapSrv(String serviceName) {
         final List<String> servers = healthyList;
-        
+
         if (CollectionUtils.isEmpty(servers) || !switchDomain.isDistroEnabled()) {
             return EnvUtil.getLocalAddress();
         }
-        
+
         try {
             int index = distroHash(serviceName) % servers.size();
             return servers.get(index);
@@ -124,11 +124,11 @@ public class DistroMapper extends MemberChangeListener {
             return EnvUtil.getLocalAddress();
         }
     }
-    
+
     private int distroHash(String serviceName) {
         return Math.abs(serviceName.hashCode() % Integer.MAX_VALUE);
     }
-    
+
     @Override
     public void onEvent(MembersChangeEvent event) {
         // Here, the node list must be sorted to ensure that all nacos-server's
@@ -140,7 +140,7 @@ public class DistroMapper extends MemberChangeListener {
         healthyList = Collections.unmodifiableList(list);
         Loggers.SRV_LOG.info("[NACOS-DISTRO] healthy server list changed, old: {}, new: {}", old, healthyList);
     }
-    
+
     @Override
     public boolean ignoreExpireEvent() {
         return true;
