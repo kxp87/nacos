@@ -110,6 +110,7 @@ public class RaftController {
      * @throws Exception exception
      */
     @PostMapping("/beat")
+    // 集群数据同步_09
     public JsonNode beat(HttpServletRequest request, HttpServletResponse response) throws Exception {
         if (versionJudgement.allMemberIsNewVersion()) {
             throw new IllegalStateException("old raft protocol already stop");
@@ -119,7 +120,7 @@ public class RaftController {
         value = URLDecoder.decode(value, "UTF-8");
 
         JsonNode json = JacksonUtils.toObj(value);
-
+        // 集群数据同步_10
         RaftPeer peer = raftCore.receivedBeat(JacksonUtils.toObj(json.get("beat").asText()));
 
         return JacksonUtils.transferToJsonNode(peer);
@@ -181,6 +182,7 @@ public class RaftController {
      * @throws Exception exception
      */
     @PostMapping("/datum")
+    // 集群数据同步_21_1
     public String publish(HttpServletRequest request, HttpServletResponse response) throws Exception {
         if (versionJudgement.allMemberIsNewVersion()) {
             throw new IllegalStateException("old raft protocol already stop");
